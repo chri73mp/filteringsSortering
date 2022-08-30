@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        * {
+            all: unset;
+            display: revert;
+            cursor: revert;
+            box-sizing: border-box;
+        }
+
+        p {
+            font-family: Arial, Helvetica, sans-serif;
+            color: darkgrey;
+        }
+
+        h2 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1rem;
+        }
+
+        button {
+            color: white;
+            background-color: grey;
+            border-color: orange;
+            border: 2px solid red;
+            border-radius: 4px;
+
+        }
+
+        #holder {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 260px);
+            gap: 10px;
+        }
+
+        .valgt {
+            background-color: pink;
+            border: 2px solid red;
+            border-radius: 4px;
+            color: white;
+        }
+
+        @media screen and (max-width: 1200px) {
+            #holder {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1em;
+                margin: 1rem;
+            }
+
+            article {
+                border: 1px solid lightcoral;
+                gap: 10px;
+
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h1>Alle</h1>
+            <button data-troende="alle" class="valgt">Alle</button>
+            <button data-troende="ja">Troende</button>
+            <button data-troende="nej">Ikke troende</button>
+            <button data-troende="i tvivl">Tvivler</button>
+        </nav>
+    </header>
+    <section id="holder"></section>
+    <template>
+        <article>
+            <h2></h2>
+            <p></p>
+            <p></p>
+        </article>
+    </template>
+
+    <script>
+        const url = "https://persongalleri-5d3e.restdb.io/rest/persongalleri";
+        const options = { headers: { "x-apikey": "600fe9211346a1524ff12e31" } };
+
+        let data;
+        let filter = "alle";
+
+        document.querySelectorAll("button").forEach((knap) => knap.addEventListener("click", filtrerPersoner));
+
+
+        function filtrerPersoner() {
+            filter = this.dataset.tro;
+            document.querySelector(".valgt").classList.remove("valgt");
+            this.classList.add("valgt");
+            console.log(filter);
+            vis();
+        }
+
+        async function hentData() {
+            const res = await fetch(url, options);
+            const json = await res.json();
+            data = json;
+            vis();
+        }
+
+        function vis() {
+            const holder = document.querySelector("#holder");
+            const template = document.querySelector("template").content;
+            holder.textContent = "";
+            data.forEach((person) => {
+                if (filter == "alle" || person.troende) {
+                    const klon = template.cloneNode(true);
+                    klon.querySelector("h2").textContent = person.fornavn + " " + person.efternavn;
+                    klon.querySelector("p").textContent = person.email;
+                    const dato = person.fødselsdag;
+                    klon.querySelector("p+p").textContent = "født";
+                    holder.appendChild(klon);
+                }
+            })
+
+        }
+
+        hentData();
+
+
+
+    </script>
+</body>
+
+</html>
